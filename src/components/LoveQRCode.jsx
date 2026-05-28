@@ -1,89 +1,45 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
+import { QRCodeSVG } from 'qrcode.react';
 
-export default function LoveQRCode({ url = "https://domain-website-kamu.com", size = 280 }) {
-  const canvasRef = useRef(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    
-    // Clear Canvas
-    ctx.clearRect(0, 0, size, size);
-
-    // 1. BACKGROUND: Gambar bentuk Love Transparan / Soft Pink di Belakang
-    ctx.fillStyle = "rgba(251, 207, 232, 0.2)"; // Soft Pink sangat tipis
-    drawLoveShape(ctx, size / 2, size / 2, size * 0.85);
-    ctx.fill();
-
-    // 2. GENERATE QR MATRIX (Simulasi titik matriks presisi tinggi)
-    // Agar pas di scan beneran mengarah ke URL web lu wir
-    ctx.fillStyle = "#ec4899"; // Kunci warna: Hot Pink Estetik!
-
-    // Algoritma membuat susunan pola titik QR Code melingkar membentuk hati
-    const totalDots = 35;
-    const center = size / 2;
-
-    for (let row = 0; row < totalDots; row++) {
-      for (let col = 0; col < totalDots; col++) {
-        // Logika koordinat normalisasi (-1 sampai 1)
-        const x = ((col - totalDots / 2) / (totalDots / 2)) * (size * 0.4);
-        const y = ((row - totalDots / 2) / (totalDots / 2)) * (size * 0.4);
-
-        // Rumus Matematika Kurva Hati Karlo (Heart Equation Test)
-        const normX = x / (size * 0.25);
-        const normY = -y / (size * 0.25) + 0.1; // Invert Y karena koordinat canvas terbalik
-        const heartEquation = Math.pow(normX * normX + normY * normY - 1, 3) - normX * normX * Math.pow(normY, 3);
-
-        // Jika koordinat titik berada di dalam jangkauan bentuk hati, gambar pixel QR-nya!
-        if (heartEquation < 0) {
-          // Tambahkan efek acak pola data QR biar estetik tapi tetep fungsional
-          if ((row + col) % 2 === 0 || (row % 3 === 0 && col % 3 === 0) || isQRAnchor(row, col, totalDots)) {
-            const dotX = center + x;
-            const dotY = center + y;
-            const dotSize = size / totalDots * 0.85;
-
-            // Gambar kotak pixel QR membulat (Rounded Dot) biar keliatan modern
-            ctx.beginPath();
-            ctx.arc(dotX, dotY, dotSize / 2, 0, Math.PI * 2);
-            ctx.fill();
-          }
-        }
-      }
-    }
-
-    // 3. Suntik Teks "SCAN ME 💖" di bagian bawah biar si Ayu tahu harus diapain
-    ctx.fillStyle = "#f43f5e";
-    ctx.font = "bold 12px Inter, sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("SCAN ME TO OPEN YOUR GALAXY 💖", center, size - 10);
-
-  }, [url, size]);
-
-  // Helper: Membuat Jangkar Kotak Sudut QR Code (Anchor Pos)
-  function isQRAnchor(r, c, total) {
-    if (r < 7 && c < 7) return true; // Pojok Kiri Atas
-    if (r < 7 && c > total - 8) return true; // Pojok Kanan Atas
-    if (r > total - 8 && c < 7) return true; // Pojok Kiri Bawah
-    return false;
-  }
-
-  // Helper: Menggambar jalur path bentuk Love murni
-  function drawLoveShape(ctx, x, y, width) {
-    const topY = y - width / 4;
-    ctx.beginPath();
-    ctx.moveTo(x, topY + width / 4);
-    // Lengkungan kiri
-    ctx.bezierCurveTo(x - width / 2, topY, x - width / 2, topY + width / 2, x, topY + width * 0.85);
-    // Lengkungan kanan
-    ctx.bezierCurveTo(x + width / 2, topY + width / 2, x + width / 2, topY, x, topY + width / 4);
-    ctx.closePath();
-  }
-
+export default function LoveQRCode({ url = "https://fuck-galaxy.vercel.app/", size = 280 }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'rgba(255, 255, 255, 0.95)', padding: '24px', borderRadius: '24px', boxShadow: '0 20px 25px -5px rgba(244, 63, 94, 0.2)', border: '2px solid #fbcfe8' }}>
-      <canvas ref={canvasRef} width={size} height={size} />
-      <p style={{ color: '#6b7280', fontSize: '11px', marginTop: '8px', fontWeight: '500' }}>Target: {url}</p>
+    <div style={{ 
+      display: 'flex', 
+      flexDirection: 'column', 
+      alignItems: 'center', 
+      justifyContent: 'center', 
+      background: '#ffffff', 
+      padding: '24px 24px 28px 24px', 
+      borderRadius: '24px', 
+      boxShadow: '0 20px 40px rgba(236, 72, 153, 0.15)', 
+      border: '2px solid #fbcfe8' 
+    }}>
+      
+      {/* 🎯 GENERATOR QR CODE UTAMA: Menggunakan SVG asli yang tajam, anti-pecah, dan super responsif */}
+      <QRCodeSVG
+        value={url}
+        size={size}
+        bgColor={"#ffffff"}
+        fgColor={"#ec4899"} // Warna Hot Pink pilihan lu, Wir!
+        level={"H"}         // Tingkat akurasi tinggi (High), biar kalau ditimpa logo tengah tetep bisa di-scan
+        includeMargin={true}
+        imageSettings={{
+          src: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23f43f5e'><path d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.5 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/></svg>",
+          x: null,
+          y: null,
+          height: size * 0.2, // Ukuran ikon hati di tengah-tengah QR
+          width: size * 0.2,
+          excavate: true,     // Memotong kotak QR di belakang ikon hati biar gak bentrok datanya
+        }}
+      />
+
+      <p style={{ color: '#db2777', fontSize: '11px', marginTop: '12px', fontWeight: '700', letterSpacing: '0.03em' }}>
+        SCAN ME TO OPEN YOUR GALAXY 💖
+      </p>
+      
+      <p style={{ color: '#9ca3af', fontSize: '9px', marginTop: '4px', fontWeight: '500' }}>
+        Target: {url}
+      </p>
     </div>
   );
 }
