@@ -74,7 +74,7 @@ export default function App() {
                 zIndex: 10000
               }}
             >
-              <LoveQRCode url="https://galaksi-buat-ayu.vercel.app" size={260} />
+              <LoveQRCode url="https://fuck-galaxy.vercel.app/" size={260} />
               <p style={{ color: '#f472b6', fontSize: '12px', fontWeight: '500', textAlign: 'center' }}>
                 Mode Developer Aktif! <br />📸 Klik Kanan QR & Save Image!
               </p>
