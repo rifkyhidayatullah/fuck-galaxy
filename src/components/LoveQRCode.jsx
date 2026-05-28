@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 
-export default function LoveQRCode({ url = "https://domain-website-kamu.com", size = 280 }) {
+export default function LoveQRCode({ url = "https://fuck-galaxy.vercel.app/", size = 280 }) {
   const canvasRef = useRef(null);
 
   useEffect(() => {
