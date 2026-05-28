@@ -7,83 +7,86 @@ export default function LoveQRCode({ url = "https://fuck-galaxy.vercel.app/", si
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    
-    // Clear Canvas
-    ctx.clearRect(0, 0, size, size);
 
-    // 1. BACKGROUND: Gambar bentuk Love Transparan / Soft Pink di Belakang
-    ctx.fillStyle = "rgba(251, 207, 232, 0.2)"; // Soft Pink sangat tipis
-    drawLoveShape(ctx, size / 2, size / 2, size * 0.85);
-    ctx.fill();
+    // Gunakan Google Chart API untuk men-generate QR Code asli yang VALID & BISA DI-SCAN
+    // Chs = Size, Chl = URL Target, Choe = Encoding
+    const qrImageUrl = `https://chart.googleapis.com/chart?cht=qr&chs=${size}x${size}&chl=${encodeURIComponent(url)}&chld=H|1`;
 
-    // 2. GENERATE QR MATRIX (Simulasi titik matriks presisi tinggi)
-    // Agar pas di scan beneran mengarah ke URL web lu wir
-    ctx.fillStyle = "#ec4899"; // Kunci warna: Hot Pink Estetik!
+    const img = new Image();
+    img.crossOrigin = "anonymous"; // Anti-error CORS pas diklik kanan save image
+    img.src = qrImageUrl;
 
-    // Algoritma membuat susunan pola titik QR Code melingkar membentuk hati
-    const totalDots = 35;
-    const center = size / 2;
+    img.onload = () => {
+      // 1. Bersihkan canvas lama
+      ctx.clearRect(0, 0, size, size);
 
-    for (let row = 0; row < totalDots; row++) {
-      for (let col = 0; col < totalDots; col++) {
-        // Logika koordinat normalisasi (-1 sampai 1)
-        const x = ((col - totalDots / 2) / (totalDots / 2)) * (size * 0.4);
-        const y = ((row - totalDots / 2) / (totalDots / 2)) * (size * 0.4);
+      // 2. Gambar QR asli dari Google API sebagai fondasi data biner valid
+      ctx.drawImage(img, 0, 0, size, size);
 
-        // Rumus Matematika Kurva Hati Karlo (Heart Equation Test)
-        const normX = x / (size * 0.25);
-        const normY = -y / (size * 0.25) + 0.1; // Invert Y karena koordinat canvas terbalik
-        const heartEquation = Math.pow(normX * normX + normY * normY - 1, 3) - normX * normX * Math.pow(normY, 3);
+      // 3. Ambil data pixel untuk kita manipulasi warnanya dari hitam ke Hot Pink estetik
+      const imgData = ctx.getImageData(0, 0, size, size);
+      const data = imgData.data;
 
-        // Jika koordinat titik berada di dalam jangkauan bentuk hati, gambar pixel QR-nya!
-        if (heartEquation < 0) {
-          // Tambahkan efek acak pola data QR biar estetik tapi tetep fungsional
-          if ((row + col) % 2 === 0 || (row % 3 === 0 && col % 3 === 0) || isQRAnchor(row, col, totalDots)) {
-            const dotX = center + x;
-            const dotY = center + y;
-            const dotSize = size / totalDots * 0.85;
-
-            // Gambar kotak pixel QR membulat (Rounded Dot) biar keliatan modern
-            ctx.beginPath();
-            ctx.arc(dotX, dotY, dotSize / 2, 0, Math.PI * 2);
-            ctx.fill();
-          }
+      for (let i = 0; i < data.length; i += 4) {
+        // Jika pixel berwarna hitam atau mendekati hitam (R, G, B < 120)
+        if (data[i] < 120 && data[i+1] < 120 && data[i+2] < 120) {
+          data[i] = 236;     // Ubah Merah (R) ke #ec4899 (Hot Pink)
+          data[i+1] = 72;    // Ubah Hijau (G)
+          data[i+2] = 153;   // Ubah Biru (B)
         }
       }
-    }
+      ctx.putImageData(imgData, 0, 0);
 
-    // 3. Suntik Teks "SCAN ME 💖" di bagian bawah biar si Ayu tahu harus diapain
-    ctx.fillStyle = "#f43f5e";
-    ctx.font = "bold 12px Inter, sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("SCAN ME TO OPEN YOUR GALAXY 💖", center, size - 10);
+      // 4. OVERLAY DEKORASI: Gambar Ikon Hati Pink Solid di tengah-tengah QR Code
+      const center = size / 2;
+      const heartSize = size * 0.18; // Ukuran proporsional biar gak nutupin data QR
 
+      // Bikin background kotak putih kecil dulu di tengah biar hatinya kontras
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(center, center, heartSize * 0.7, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Gambar Hati Pink Solid di tengah
+      ctx.fillStyle = "#f43f5e"; // Rose pink murni
+      drawCenterHeart(ctx, center, center, heartSize);
+
+      // 5. Tambahkan teks petunjuk di bawah canvas
+      ctx.fillStyle = "#db2777";
+      ctx.font = "bold 11px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("SCAN ME TO OPEN YOUR GALAXY 💖", center, size - 8);
+    };
   }, [url, size]);
 
-  // Helper: Membuat Jangkar Kotak Sudut QR Code (Anchor Pos)
-  function isQRAnchor(r, c, total) {
-    if (r < 7 && c < 7) return true; // Pojok Kiri Atas
-    if (r < 7 && c > total - 8) return true; // Pojok Kanan Atas
-    if (r > total - 8 && c < 7) return true; // Pojok Kiri Bawah
-    return false;
-  }
-
-  // Helper: Menggambar jalur path bentuk Love murni
-  function drawLoveShape(ctx, x, y, width) {
+  // Helper menggambar ikon hati presisi tinggi di tengah canvas
+  function drawCenterHeart(ctx, x, y, width) {
     const topY = y - width / 4;
     ctx.beginPath();
     ctx.moveTo(x, topY + width / 4);
-    // Lengkungan kiri
     ctx.bezierCurveTo(x - width / 2, topY, x - width / 2, topY + width / 2, x, topY + width * 0.85);
-    // Lengkungan kanan
     ctx.bezierCurveTo(x + width / 2, topY + width / 2, x + width / 2, topY, x, topY + width / 4);
     ctx.closePath();
+    ctx.fill();
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'rgba(255, 255, 255, 0.95)', padding: '24px', borderRadius: '24px', boxShadow: '0 20px 25px -5px rgba(244, 63, 94, 0.2)', border: '2px solid #fbcfe8' }}>
-      <canvas ref={canvasRef} width={size} height={size} />
-      <p style={{ color: '#6b7280', fontSize: '11px', marginTop: '8px', fontWeight: '500' }}>Target: {url}</p>
+    <div style={{ 
+      display: 'flex', 
+      flexDirection: 'column', 
+      alignItems: 'center', 
+      justifyContent: 'center', 
+      background: 'rgba(255, 255, 255, 0.98)', 
+      padding: '24px 24px 32px 24px', 
+      borderRadius: '24px', 
+      boxShadow: '0 20px 40px rgba(236, 72, 153, 0.15)', 
+      border: '2px solid #fbcfe8' 
+    }}>
+      {/* Canvas tempat QR Code Valid lu digambar */}
+      <canvas ref={canvasRef} width={size} height={size} style={{ borderRadius: '12px' }} />
+      <p style={{ color: '#9ca3af', fontSize: '10px', marginTop: '12px', fontWeight: '500', letterSpacing: '0.02em' }}>
+        Secure Link: {url}
+      </p>
     </div>
   );
 }
