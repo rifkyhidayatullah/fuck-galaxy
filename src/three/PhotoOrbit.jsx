@@ -7,8 +7,8 @@ export default function PhotoOrbit({ isCinematic }) {
 
   // 1. Jalur 10 foto asli kamu di folder public/images
   const originalPhotos = [
-    '/images/photo1.jpg', '/images/photo2.jpg', '/images/photo3.jpg', '/images/photo4.jpg', '/images/photo5.jpg',
-    '/images/photo6.jpg', '/images/photo7.jpg', '/images/photo8.jpg', '/images/photo9.jpg', '/images/photo10.jpg'
+    '/images/photo1.jpeg', '/images/photo2.jpeg', '/images/photo3.jpeg', '/images/photo4.jpeg', '/images/photo5.jpeg',
+    '/images/photo6.jpeg', '/images/photo7.jpeg', '/images/photo8.jpeg', '/images/photo9.jpeg', '/images/photo10.jpeg'
   ];
 
   // Load texture gambar

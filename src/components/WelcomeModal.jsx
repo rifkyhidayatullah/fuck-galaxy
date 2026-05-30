@@ -32,6 +32,7 @@ export default function WelcomeModal({ onAccept }) {
         initial={{ opacity: 0, scale: 0.85, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ type: "spring", duration: 0.8 }}
+        className="w-full max-w-[340px] sm:max-w-[380px] p-6 sm:p-10 text-center relative"
         style={{
           backgroundColor: 'rgba(12, 12, 12, 0.7)',
           backdropFilter: 'blur(20px)',

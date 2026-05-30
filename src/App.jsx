@@ -57,7 +57,7 @@ export default function App() {
             padding: '24px',
             overflowY: 'auto'
           }}
-          className="md:flex-row" // Biar di laptop otomatis berjejer kiri-kanan rapi wir
+          className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12 w-full min-h-screen p-4 md:p-8 overflow-y-auto" 
         >
           {/* Hanya ada Modal Pertanyaan Romantis (QR Code aslinya gaib / disembunyikan) */}
           <WelcomeModal onAccept={handleAccept} />
